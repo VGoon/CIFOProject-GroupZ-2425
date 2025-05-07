@@ -4,7 +4,7 @@ from random import randint
 import random
 fitness_grid = pd.read_csv("library/wedding_seat_data.csv")
 
-class Wedding_Solution_List(Solution):
+class Wedding_Solution(Solution):
     def __init__(self, repr=None, tables=8, attendees=64, values_grid=fitness_grid):
         self.tables = tables
         self.attendees = attendees
@@ -73,6 +73,12 @@ class Wedding_Solution_List(Solution):
                     fitness += self.values_grid[self.values_grid['idx'] == personA][str(personB)].values[0]
         return fitness
     
+    def get_valued_people(self, person):
+        filtered = fitness_grid[fitness_grid['idx'] == person].iloc[0]
+        filtered = filtered.drop('idx')
+        peopleWithRelationship = [int(x) for x in filtered[filtered > 0].index] # only getting the attendees that are valued by randomPersonA
+        return peopleWithRelationship
+        
     # clearly shows which person sits at which table for debugging purposes
     def pretty_print(self):
         tables = {i: [] for i in range(1, self.tables+1)}  # Tables 1 through 8
