@@ -36,63 +36,6 @@ def random_swap_neighborhood(repr, get_valued_people=None, num_of_neighbors=64, 
 
 
 
-def greedy_swap_neighborhood(repr, get_valued_people, attendees=64):
-
-    """
-    Generates neighbors by greedily swapping a random person with others they have relationships with.
-
-    Parameters:
-        repr (list): The current representation of seating.
-        get_valued_people (function): A function that returns a list of people with valued relationships to a given person.
-        attendees (int): Total number of attendees.
-
-    Returns:
-        list of tuples: Each tuple contains (new_repr, debug_msg).
-    """
-    neighbors = []
-
-    # Select a random person A
-    randomPersonA = randint(1, attendees)
-    randomTableA = repr[randomPersonA - 1]
-
-    # Get people who have a relationship with A
-    peopleWithRelationship = get_valued_people(randomPersonA)
-
-    for personB in peopleWithRelationship:
-        tableB = repr[personB - 1]
-        while tableB == randomTableA:
-            personB = randint(1, attendees)
-            tableB = repr[personB - 1]
-
-        new_repr = deepcopy(repr)
-        new_repr[randomPersonA - 1] = tableB
-        new_repr[personB - 1] = randomTableA
-
-        debug_msg = f"Swapped person #{randomPersonA} at table {randomTableA} with person #{personB} at table {tableB}"
-        neighbors.append((new_repr, debug_msg))
-
-    # Fallback: if no neighbors were created
-    if not neighbors:
-        randomPersonA = randint(1, attendees)
-        randomTableA = repr[randomPersonA - 1]
-
-        randomPersonB = randint(1, attendees)
-        randomTableB = repr[randomPersonB - 1]
-        while randomTableB == randomTableA:
-            randomPersonB = randint(1, attendees)
-            randomTableB = repr[randomPersonB - 1]
-
-        new_repr = deepcopy(repr)
-        new_repr[randomPersonA - 1] = randomTableB
-        new_repr[randomPersonB - 1] = randomTableA
-
-        debug_msg = f"Swapped person #{randomPersonA} at table {randomTableA} with person #{randomPersonB} at table {randomTableB}"
-        neighbors.append((new_repr, debug_msg))
-
-    return neighbors
-
-
-
 def actual_greedy_swap_neighborhood(repr, get_valued_people, attendees=64):
     neighbors = []
 

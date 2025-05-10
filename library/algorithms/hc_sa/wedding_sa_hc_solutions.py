@@ -1,4 +1,8 @@
 from  library.wedding_solution import Wedding_Solution
+import pandas as pd
+import random
+df = pd.read_csv("library/wedding_seat_data.csv")
+
 
 class Wedding_HillClimbingSolution(Wedding_Solution):
     def __init__(self, repr=None, tables=8, attendees=64, values_grid=df, pretty_print_msg=None, neighborhood_function=None):
@@ -43,8 +47,6 @@ class Wedding_HillClimbingSolution(Wedding_Solution):
 
 
 
-import random
-from copy import deepcopy
 
 class Wedding_SimulatedAnnealingSolution(Wedding_Solution):
     def __init__(self, repr=None, tables=8, attendees=64, values_grid=df, pretty_print_msg=None, neighborhood_function=None):
