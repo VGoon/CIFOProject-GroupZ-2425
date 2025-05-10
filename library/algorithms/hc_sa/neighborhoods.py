@@ -2,22 +2,77 @@ from random import randint, choice
 from copy import deepcopy
 
 def random_swap_neighborhood(repr, get_valued_people=None, num_of_neighbors=64, attendees=64):
-    from random import randint
-    from copy import deepcopy
-
     neighbors = []
-    swaps = num_of_neighbors
+    attendees = len(repr)
 
-    if swaps == 0:
-        raise ValueError("num_of_neighbors must be > 0")
+    # loop through all the attendees and swap them at least once
+    for personA in range(1, attendees+1):
+        tableA = repr[personA - 1]
 
-    while swaps > 0:
+        randomPersonB = randint(1, attendees)
+
+        randomTableB = repr[randomPersonB - 1]
+
+        # find a random person to swap with that doesnt sit at the same table
+        while randomTableB == tableA:
+            randomPersonB = randint(1, attendees)
+            randomTableB = repr[randomPersonB - 1]
+
+        # swap personA and personB
+        new_repr = deepcopy(repr)
+        new_repr[personA - 1] = randomTableB
+        new_repr[randomPersonB - 1] = tableA
+
+        debug_print = "Swapped person #" + str(personA) + " at table " + str(tableA) + " with person #" + str(randomPersonB) + " at table " + str(randomTableB)
+
+        # add to the list of neighbors
+        neighbors.append((new_repr,debug_print))
+
+    # Returns list of representations of neighbors
+    return neighbors
+
+def greedy_swap_neighborhood(repr, get_valued_people, attendees=64):
+
+    """
+    Generates neighbors by greedily swapping a random person with others they have relationships with.
+
+    Parameters:
+        repr (list): The current representation of seating.
+        get_valued_people (function): A function that returns a list of people with valued relationships to a given person.
+        attendees (int): Total number of attendees.
+
+    Returns:
+        list of tuples: Each tuple contains (new_repr, debug_msg).
+    """
+    neighbors = []
+
+    # Select a random person A
+    randomPersonA = randint(1, attendees)
+    randomTableA = repr[randomPersonA - 1]
+
+    # Get people who have a relationship with A
+    peopleWithRelationship = get_valued_people(randomPersonA)
+
+    for personB in peopleWithRelationship:
+        tableB = repr[personB - 1]
+        while tableB == randomTableA:
+            personB = randint(1, attendees)
+            tableB = repr[personB - 1]
+
+        new_repr = deepcopy(repr)
+        new_repr[randomPersonA - 1] = tableB
+        new_repr[personB - 1] = randomTableA
+
+        debug_msg = f"Swapped person #{randomPersonA} at table {randomTableA} with person #{personB} at table {tableB}"
+        neighbors.append((new_repr, debug_msg))
+
+    # Fallback: if no neighbors were created
+    if not neighbors:
         randomPersonA = randint(1, attendees)
         randomTableA = repr[randomPersonA - 1]
 
         randomPersonB = randint(1, attendees)
         randomTableB = repr[randomPersonB - 1]
-
         while randomTableB == randomTableA:
             randomPersonB = randint(1, attendees)
             randomTableB = repr[randomPersonB - 1]
@@ -26,12 +81,9 @@ def random_swap_neighborhood(repr, get_valued_people=None, num_of_neighbors=64, 
         new_repr[randomPersonA - 1] = randomTableB
         new_repr[randomPersonB - 1] = randomTableA
 
-        debug_print = "Swapped person #" + str(randomPersonA) + " at table " + str(randomTableA) + " with person #" + str(randomPersonB) + " at table " + str(randomTableB)
+        debug_msg = f"Swapped person #{randomPersonA} at table {randomTableA} with person #{randomPersonB} at table {randomTableB}"
+        neighbors.append((new_repr, debug_msg))
 
-        neighbors.append((new_repr,debug_print))
-        swaps -= 1
-
-    # Returns list of representations of neighbors
     return neighbors
 
 
