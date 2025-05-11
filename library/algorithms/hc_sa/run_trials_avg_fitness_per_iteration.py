@@ -3,10 +3,19 @@ from matplotlib.ticker import MaxNLocator
 
 from library.algorithms.hc_sa.hill_climbing import hill_climbing
 from library.algorithms.hc_sa.simulated_annealing import simulated_annealing
-from library.wedding_solution import Wedding_Solution
+from library.algorithms.genetic_algorithms.genetic_algorithm import genetic_algorithm
 from library.algorithms.hc_sa.wedding_sa_hc_solutions import Wedding_HillClimbingSolution, Wedding_SimulatedAnnealingSolution
+from library.wedding_ga_solution import WeddingGASolution
+from library.wedding_solution import Wedding_Solution
 
 from library.algorithms.hc_sa.neighborhoods import random_swap_neighborhood, actual_greedy_swap_neighborhood
+import pandas as pd
+fitness_grid = pd.read_csv("library/wedding_seat_data.csv")
+
+# Import required for the selection, crossover, and mutation functions going to be uses in the GAs algorithms
+from library.algorithms.genetic_algorithms.selection import fitness_proportionate_selection, ranking_selection, tournament_selection
+from library.algorithms.genetic_algorithms.crossover import cycle_crossover, order_crossover
+from library.algorithms.genetic_algorithms.mutation import greedy_swap_mutation, scramble_mutation, inversion_mutation, tableswap_mutation
 
 # Compute the average fitness across all trials at each iteration
 def run_trials_avg_fitness_per_iteration(
@@ -20,8 +29,20 @@ def run_trials_avg_fitness_per_iteration(
         #Specific for SA
         C = 100,
         L = 10,
-        H = 1.01
+        H = 1.01,
+
+        # Specific for GA
+        mutation_function=greedy_swap_mutation,
+        crossover_function=cycle_crossover,
+        selection_algorithm=fitness_proportionate_selection,
+        pop_size=50,
+        xo_prob=0.8,
+        mut_prob=0.2,
+        elitism=True
         ):
+    
+        
+
     """
     Run multiple trials of the simulated annealing algorithm with different initial solutions.
 
@@ -53,11 +74,13 @@ def run_trials_avg_fitness_per_iteration(
                 H=H
             )
             print ("Number of iterations: ", iter)
+            print(f"Neighborhood: {neighborhood_function.__name__}")
+            print(f"Best solution fitness: {best_solution.fitness()}")
             best_solutions.append(best_solution)
             all_fitness_histories.append(trial_fitness_history)
     
 
-    else: #optimization_algo == "HC":
+    elif optimization_algo == "HC": 
         for i in range(trials):
             print(f"Trial {i + 1}/{trials}")
             hc_solution = Wedding_HillClimbingSolution(
@@ -72,8 +95,44 @@ def run_trials_avg_fitness_per_iteration(
                 max_iter=max_iter
             )
             print ("Number of iterations: ", iter)
+            print(f"Neighborhood: {neighborhood_function.__name__}")
+            print(f"Best solution fitness: {best_solution.fitness()}")
             best_solutions.append(best_solution)
             all_fitness_histories.append(trial_fitness_history)
+
+
+    elif optimization_algo == "GA":
+        for i in range(trials):
+            print(f"Trial {i + 1}/{trials}")
+            ga_initial_population = [WeddingGASolution(
+            mutation_function=mutation_function,
+            crossover_function=crossover_function,
+            tables=8,  
+            attendees=64,  
+            values_grid=fitness_grid  
+        ) for _ in range(pop_size)]
+
+            best_solution, trial_fitness_history, gen = genetic_algorithm(
+                initial_population=ga_initial_population,
+                maximization=maximization,
+                verbose=verbose,
+                max_gen=max_iter,
+                selection_algorithm=selection_algorithm,
+                xo_prob=xo_prob,
+                mut_prob=mut_prob,
+                elitism=elitism,
+            )
+            print ("Number of generations: ", gen)
+            print(f"Mutation: {mutation_function.__name__}, Crossover: {crossover_function.__name__}, Selection: {selection_algorithm.__name__}")
+            print(f"Best solution fitness: {best_solution.fitness()}")
+            best_solutions.append(best_solution)
+            all_fitness_histories.append(trial_fitness_history)
+
+
+
+    else:
+        raise ValueError("Invalid optimization algorithm. Choose 'SA', 'HC', or 'GA'.")
+
 
 
     # Compute the average fitness across all trials at each iteration
@@ -95,21 +154,22 @@ def run_trials_avg_fitness_per_iteration(
     fitness value until they reach the length of the longest history. This ensures consistent averaging
     across all iterations.
     """
-    # Pad shorter histories to match the longest one
-    max_len = max(len(hist) for hist in all_fitness_histories)
-    for hist in all_fitness_histories:
-        if len(hist) < max_len:
-            hist.extend([hist[-1]] * (max_len - len(hist)))
+    if optimization_algo in ["SA", "HC"]:
+        # Pad shorter histories to match the longest one
+        max_len = max(len(hist) for hist in all_fitness_histories)
+        for hist in all_fitness_histories:
+            if len(hist) < max_len:
+                hist.extend([hist[-1]] * (max_len - len(hist)))
 
-
+    print(f"Debug 1 - run_trials_function (remove later):{all_fitness_histories} ")
     avg_fitness_per_iteration = [round(sum(col) / len(col), 2) for col in zip(*all_fitness_histories)]
 
     # Plot the results
     plt.figure(figsize=(10, 5))
-    plt.plot(avg_fitness_per_iteration, label='Average Fitness per Iteration')
-    plt.xlabel('Iteration')
+    plt.plot(avg_fitness_per_iteration, label='Average Fitness per Iteration/Generation')
+    plt.xlabel('Iteration/Generation')
     plt.ylabel('Average Fitness')
-    plt.title('Average Fitness per Iteration)')
+    plt.title('Average Fitness per Iteration/Generation)')
     plt.legend()
 
     # Remove grid and set integer ticks on x-axis
