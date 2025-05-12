@@ -14,63 +14,8 @@ def greedy_swap_mutation(representation, mut_prob, fitness_grid):
     if random.random() > mut_prob:
         print("Randomly chosen to not implement greedy_swap_mutation.")
         return new_repr
-
-    # selects random different tables to swap from, 
-    randomPersonA = randint(1, attendees_num)
-    randomTableA = new_repr[randomPersonA-1]
-
-    # get positivley valued neighbors
-    filtered = fitness_grid[fitness_grid['idx'] == randomPersonA].iloc[0]
-    filtered = filtered.drop('idx')
-    peopleWithRelationship = [int(x) for x in filtered[filtered > 0].index] # only getting the attendees that are valued by randomPersonA
-    peopleWithRelationship = sorted(peopleWithRelationship, reverse=True)
-
-    # determine person B (don't choose someone from the same table)
-    randomPersonB = None
-    for personB in peopleWithRelationship:
-        randomPersonB = personB
-        randomTableB = new_repr[personB-1]
-        if randomTableA == randomTableB:
-            continue
-        else:
-            break
-
-    # if there are no values people that don't share the same table as A, randomly choose B
-    if randomPersonB == None:
-        randomPersonB = randint(1, attendees_num)
-        randomTableB = new_repr[randomPersonB-1]
-        while randomTableB == randomTableA: # always choose a different table
-            randomPersonB = randint(1, attendees_num)
-            randomTableB = new_repr[randomPersonB-1]
-
-    # select someone random from tableA thats not randomPersonA
-    # get everyone from randomTableA
-    tableA_seats = [i for i, x in enumerate(new_repr) if x == randomTableA]
-    tableA_seats = [x + 1 for x in tableA_seats] # add 1 to everything to match the fitness grid
-    tableA_seats.remove(randomPersonA) # remove personA from the list
-    randomPersonC = random.choice(tableA_seats)
-
-    # Swap the two people between the tables
-    new_repr[randomPersonC-1] = randomTableB
-    new_repr[randomPersonB-1] = randomTableA
-
-    # print("Swapped personC #" + str(randomPersonC) + " at table " + str(randomTableA) + " with personB #" + str(personB) + " at table " + str(randomTableB) + " for personA #" + str(randomPersonA))
-import random
-from copy import deepcopy
-from random import randint
-# from library.solution import Solution
-import pandas as pd
-fitness_grid = pd.read_csv("library/wedding_seat_data.csv")
-
-# make it genuinly greedy by starting to make personB the max of the ppl with relationships (sort descending)
-def greedy_swap_mutation(representation, mut_prob, fitness_grid):
-    new_repr = deepcopy(representation)
-    attendees_num = len(representation)
-
-    # random chance to do the mutation
-    if random.random() > mut_prob:
-        print("Randomly chosen to not implement greedy_swap_mutation.")
-        return new_repr
+    else:
+        print("Randomly chosen to implement greedy_swap_mutation.")
 
     # selects random different tables to swap from, 
     randomPersonA = randint(1, attendees_num)
@@ -115,7 +60,7 @@ def greedy_swap_mutation(representation, mut_prob, fitness_grid):
 
     return new_repr
 
-def scramble_mutation(representation, mut_prob):
+def scramble_mutation(representation, mut_prob, fitness_grid=None):
     new_repr = deepcopy(representation)
     attendees_num = len(representation)
 
@@ -123,6 +68,8 @@ def scramble_mutation(representation, mut_prob):
     if random.random() > mut_prob:
         print("Randomly chosen to not implement scramble_mutation.")
         return new_repr
+    else:
+        print("Randomly chosen to implement scramble_mutation.")
 
     # limit the number of people that can be shuffled to at max 10
     if attendees_num < 10:
@@ -146,7 +93,7 @@ def scramble_mutation(representation, mut_prob):
 
     return new_repr
 
-def inversion_mutation(representation, mut_prob):
+def inversion_mutation(representation, mut_prob, fitness_grid=None):
     new_repr = deepcopy(representation)
     attendees_num = len(representation)
     
@@ -154,6 +101,8 @@ def inversion_mutation(representation, mut_prob):
     if random.random() >= mut_prob:
         print("Randomly chosen to not implement inversion_mutation.")
         return new_repr
+    else:
+        print("Randomly chosen to implement inversion_mutation.")
     
     # limit the number of people that can be shuffled to at max 10
     if attendees_num < 10:
@@ -180,7 +129,7 @@ def inversion_mutation(representation, mut_prob):
     
     return new_repr
 
-def tableswap_mutation(representation, mut_prob):
+def tableswap_mutation(representation, mut_prob, fitness_grid=None):
     new_repr = deepcopy(representation)
 
     table_count = max(set(representation))
@@ -189,6 +138,8 @@ def tableswap_mutation(representation, mut_prob):
     if random.random() >= mut_prob:
         print("Randomly chosen to not implement tableswap_mutation.")
         return new_repr
+    else:
+        print("Randomly chosen to implement tableswap_mutation.")
     
     # get one individual from each table
     peopleToSwap = []

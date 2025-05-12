@@ -60,8 +60,42 @@ def ranking_selection(population: list[Solution], maximization):
     # print("Selected individual " + str(selection))
     selection[0][0].pretty_print()
 
-    return selection
+    #return selection
+    return deepcopy(selection[0][0])
 
+
+
+
+def tournament_selection(population: list[Solution], maximization: bool, k: int = 3):
+    # Ensure k is within bounds
+    if k < 2:
+        k = 2
+    elif k > len(population):
+        k = len(population)
+
+    # Select k individuals using slicing logic like original version
+    start_idx = randint(0, len(population) - k)
+    end_idx = start_idx + k
+    tourney_indivs = population[start_idx:end_idx]
+
+    # Get fitness for selected individuals
+    fitness_list = [(ind, ind.fitness()) for ind in tourney_indivs]
+
+    # Select best (or worst) individual
+    if maximization:
+        selection = max(fitness_list, key=lambda x: x[1])
+    else:
+        selection = min(fitness_list, key=lambda x: x[1])
+
+    # Uncomment for debugging
+    # print(f"Tournament range: {start_idx}-{end_idx}")
+    # selection[0].pretty_print()
+
+    return selection[0]
+
+
+
+"""
 def tournament_selection(population: list[Solution], maximization):
     # randomly select the number of indivs to compare
     tourney_indivs_num = randint(2, int(len(population)/2)) # limiting range to half the population size
@@ -84,3 +118,5 @@ def tournament_selection(population: list[Solution], maximization):
     selection[0].pretty_print()
     
     return selection
+
+"""
