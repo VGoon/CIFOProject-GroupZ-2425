@@ -1,14 +1,16 @@
-from wedding_solution import Wedding_Solution
+from library.wedding_solution import Wedding_Solution
+import pandas as pd
+fitness_grid = pd.read_csv("library/wedding_seat_data.csv")
 
 class WeddingGASolution(Wedding_Solution):
     def __init__(
         self,
         mutation_function,
         crossover_function,
-        tables,
-        attendees,
-        values_grid,
-        repr = None
+        repr=None, 
+        tables=8, 
+        attendees=64, 
+        values_grid=fitness_grid
     ):
         # Save as attributes for access in methods
         self.mutation_function = mutation_function
@@ -26,7 +28,6 @@ class WeddingGASolution(Wedding_Solution):
         new_repr = self.mutation_function(self.repr, mut_prob)
         # Create and return individual with mutated representation
         return WeddingGASolution(
-            selection_function = self.selection_function,
             mutation_function=self.mutation_function,
             crossover_function=self.crossover_function,
             repr=new_repr
@@ -39,13 +40,11 @@ class WeddingGASolution(Wedding_Solution):
         # Create and return offspring with new representations
         return (
             WeddingGASolution(
-                selection_function = self.selection_function,
                 mutation_function=self.mutation_function,
                 crossover_function=self.crossover_function,
                 repr=offspring1_repr
             ),
             WeddingGASolution(
-                selection_function = self.selection_function,
                 mutation_function=self.mutation_function,
                 crossover_function=self.crossover_function,
                 repr=offspring2_repr

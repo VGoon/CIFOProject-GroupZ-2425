@@ -58,9 +58,9 @@ def ranking_selection(population: list[Solution], maximization):
     selection = random.choices(fitness_list, weights=rank_prob_list)
     
     # print("Selected individual " + str(selection))
-    selection[0][0].pretty_print()
+    # selection[0][0].pretty_print()
 
-    return selection
+    return selection[0][0]
 
 def tournament_selection(population: list[Solution], maximization):
     # randomly select the number of indivs to compare
@@ -81,6 +81,6 @@ def tournament_selection(population: list[Solution], maximization):
         selection = min(fitness_list, key=lambda x: x[1])
 
     # print("Selected individual " + str(selection))
-    selection[0].pretty_print()
+    # selection[0].pretty_print()
     
-    return selection
+    return selection[0]

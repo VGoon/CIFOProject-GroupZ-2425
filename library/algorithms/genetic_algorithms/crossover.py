@@ -115,6 +115,9 @@ def order_crossover(parent1_repr, parent2_repr):
         if offspring_idx == startPerson:
             offspring_idx += len(parent1_repr_substring)
 
+        if offspring_idx >= attendee_length:
+            continue
+
         offspring1_repr[offspring_idx] = parent2_remaining[substring_idx]
         offspring2_repr[offspring_idx] = parent1_remaining[substring_idx]
         # print("IDX: [" + str(offspring_idx) + "] - " + str(offspring1_repr))
@@ -123,3 +126,74 @@ def order_crossover(parent1_repr, parent2_repr):
         substring_idx += 1
 
     return offspring1_repr, offspring2_repr
+
+def partially_matched_crossover(parent1_repr, parent2_repr):
+    size = len(parent1_repr)
+    
+    # Make sure both parents are valid permutations (no repeated elements)
+    # assert len(set(parent1_repr)) == len(parent1_repr), "parent1 is not a valid permutation"
+    # assert len(set(parent2_repr)) == len(parent2_repr), "parent2 is not a valid permutation"
+
+    # Randomly choose two crossover points that define the window to be swapped
+    # cx1 is the starting index, cx2 is the ending index (inclusive)
+    cx1 = random.randint(0, size - 2)
+    cx2 = random.randint(cx1 + 1, size - 1)
+    # print(f"Crossover points: {cx1} to {cx2}")
+
+    # Initialize offspring as empty lists (filled with None), same size as parents(by definition)    
+    offspring1 = [None] * size
+    offspring2 = [None] * size
+
+    # Copy the segment (crossover window) from the opposite parent into each offspring
+    # So offspring1 gets the window from parent2, and vice versa
+    offspring1[cx1:cx2+1] = parent2_repr[cx1:cx2+1]
+    offspring2[cx1:cx2+1] = parent1_repr[cx1:cx2+1]
+
+    # These mappings are used to resolve conflicts when filling in the rest of the offspring
+    # They link the values that were swapped between the parents in the crossover window
+    # For example, if parent1 had 5 in the window and parent2 had 2 in the same position,
+    # the mapping would record 2 → 5 and 5 → 2
+    # This is important because when we try to fill a position in the offspring with a value
+    # from the other parent, we might hit a conflict (i.e., the value is already present
+    # in the copied window). If that happens, we follow this mapping to find an alternative
+    # value that maintains the permutation without introducing duplicates
+    mapping1 = {
+        parent2_repr[i]: parent1_repr[i]
+        for i in range(cx1, cx2 + 1)
+    }
+    mapping2 = {
+        parent1_repr[i]: parent2_repr[i]
+        for i in range(cx1, cx2 + 1)
+    }
+
+    # window1 keeps track of which values were already placed in the window copied into offspring1
+    window1 = parent2_repr[cx1:cx2+1]
+    
+    # Fill in the rest of offspring1 with values from parent1 (outside the crossover window)
+    for i in range(size):
+        if cx1 <= i <= cx2:
+            continue # Skip the window, if i is within the window range since it's already filled
+
+        # Start by taking the value from parent1 at the current position, this is the 
+        # value we want to place in offspring1 unless it causes a conflict with what's already in the
+        # crossover window
+        val = parent1_repr[i]
+       
+        # If the value is already in the copied window, follow the mapping to resolve conflict
+        while val in window1:
+            val = mapping1[val]
+        # Otherwise, just copy the value from parent1 (val = parent1_repr[i])
+        offspring1[i] = val
+
+    # Do the same for offspring2, but using parent2 as the source and parent1's window (same logic as the previous chunk of code)
+    window2 = parent1_repr[cx1:cx2+1]
+    for i in range(size):
+        if cx1 <= i <= cx2:
+            continue
+        val = parent2_repr[i]
+        
+        while val in window2:
+            val = mapping2[val]
+        offspring2[i] = val
+
+    return offspring1, offspring2

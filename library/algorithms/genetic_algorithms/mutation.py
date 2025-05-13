@@ -10,7 +10,7 @@ def greedy_swap_mutation(representation, mut_prob, fitness_grid):
 
     # random chance to do the mutation
     if random.random() > mut_prob:
-        print("Randomly chosen to not implement.")
+        # print("Randomly chosen to not implement.")
         return new_repr
 
     # selects random different tables to swap from, 
@@ -62,7 +62,7 @@ def scramble_mutation(representation, mut_prob):
 
     # random chance to do the mutation
     if random.random() > mut_prob:
-        print("Randomly chosen to not implement.")
+        # print("Randomly chosen to not implement.")
         return new_repr
 
     # limit the number of people that can be shuffled to at max 10
@@ -93,7 +93,7 @@ def inversion_mutation(representation, mut_prob):
     
     # random chance to do the mutation
     if random.random() >= mut_prob:
-        print("Randomly chosen to not implement.")
+        # print("Randomly chosen to not implement.")
         return new_repr
     
     # limit the number of people that can be shuffled to at max 10
@@ -128,7 +128,7 @@ def tableswap_mutation(representation, mut_prob):
 
     # random chance to do the mutation
     if random.random() >= mut_prob:
-        print("Randomly chosen to not implement.")
+        # print("Randomly chosen to not implement.")
         return new_repr
     
     # get one individual from each table
@@ -138,11 +138,11 @@ def tableswap_mutation(representation, mut_prob):
         peopleToSwap.append(random.choice(table_seats))
 
     # shuffle the chosen people
-    print(peopleToSwap)
+    # print(peopleToSwap)
     swap_copy = deepcopy(peopleToSwap)
     while swap_copy == peopleToSwap:
         random.shuffle(peopleToSwap)
-    print(peopleToSwap)
+    # print(peopleToSwap)
 
     for idx in range(0, len(peopleToSwap)):
         table_num = idx + 1
