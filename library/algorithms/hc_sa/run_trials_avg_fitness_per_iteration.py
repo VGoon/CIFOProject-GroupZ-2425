@@ -1,5 +1,11 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
+import pandas as pd
+import time
+from datetime import datetime
+import os
+import numpy as np
+
 
 from library.algorithms.hc_sa.hill_climbing import hill_climbing
 from library.algorithms.hc_sa.simulated_annealing import simulated_annealing
@@ -17,8 +23,10 @@ from library.algorithms.genetic_algorithms.selection import fitness_proportionat
 from library.algorithms.genetic_algorithms.crossover import cycle_crossover, order_crossover
 from library.algorithms.genetic_algorithms.mutation import greedy_swap_mutation, scramble_mutation, inversion_mutation, tableswap_mutation
 
-# Compute the average fitness across all trials at each iteration
+
+# Compute the median fitness across all trials at each iteration
 def run_trials_avg_fitness_per_iteration(
+    
         optimization_algo = "HC",
         neighborhood_function=random_swap_neighborhood, 
         trials=10, 
@@ -53,11 +61,21 @@ def run_trials_avg_fitness_per_iteration(
     Returns:
         list: A list of best solutions from each trial.
     """
+    print("run_trials_error - Debug 1")
     all_fitness_histories = []
     best_solutions = []
+    trial_durations = []
+
+    # Generate a new folder to store the results obtained from the trials
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    folder_path = f"ModelResults/{optimization_algo}/Trial_results_{timestamp}"
+
+    # Create the folder if it doesn't exist
+    os.makedirs(folder_path, exist_ok=True)
 
     if optimization_algo == "SA":
         for i in range(trials):
+            start_time = time.time()
             print(f"Trial {i + 1}/{trials}")
             sa_solution = Wedding_SimulatedAnnealingSolution(
                 neighborhood_function=neighborhood_function,
@@ -73,6 +91,9 @@ def run_trials_avg_fitness_per_iteration(
                 L=L,
                 H=H
             )
+            end_time = time.time()
+            trial_durations.append(round(end_time - start_time, 2))  # seconds
+            print(f"Trial duration: {trial_durations[-1]} seconds")
             print ("Number of iterations: ", iter)
             print(f"Neighborhood: {neighborhood_function.__name__}")
             print(f"Best solution fitness: {best_solution.fitness()}")
@@ -82,6 +103,7 @@ def run_trials_avg_fitness_per_iteration(
 
     elif optimization_algo == "HC": 
         for i in range(trials):
+            start_time = time.time()
             print(f"Trial {i + 1}/{trials}")
             hc_solution = Wedding_HillClimbingSolution(
                 neighborhood_function=neighborhood_function,
@@ -94,6 +116,10 @@ def run_trials_avg_fitness_per_iteration(
                 verbose=verbose,
                 max_iter=max_iter
             )
+            end_time = time.time()
+            trial_durations.append(round(end_time - start_time, 2)) 
+            print(f"Trial duration: {trial_durations[-1]} seconds")
+
             print ("Number of iterations: ", iter)
             print(f"Neighborhood: {neighborhood_function.__name__}")
             print(f"Best solution fitness: {best_solution.fitness()}")
@@ -103,6 +129,7 @@ def run_trials_avg_fitness_per_iteration(
 
     elif optimization_algo == "GA":
         for i in range(trials):
+            start_time = time.time()
             print(f"Trial {i + 1}/{trials}")
             ga_initial_population = [WeddingGASolution(
             mutation_function=mutation_function,
@@ -122,6 +149,9 @@ def run_trials_avg_fitness_per_iteration(
                 mut_prob=mut_prob,
                 elitism=elitism,
             )
+            end_time = time.time()
+            trial_durations.append(round(end_time - start_time, 2))
+            print(f"Trial duration: {trial_durations[-1]} seconds")
             print ("Number of generations: ", gen)
             print(f"Mutation: {mutation_function.__name__}, Crossover: {crossover_function.__name__}, Selection: {selection_algorithm.__name__}")
             print(f"Best solution fitness: {best_solution.fitness()}")
@@ -137,6 +167,7 @@ def run_trials_avg_fitness_per_iteration(
 
     # Compute the average fitness across all trials at each iteration
     # if we have a = [[1, 2, 3], [2, 3, 4], [3, 4, 5]] when we do averages = [sum(col) / len(col) for col in zip(*a)] 
+    # [round(np.median(col), 2) for col in zip(*all_fitness_histories)
     # we get this [2.0, 3.0, 4.0]
 
 
@@ -154,6 +185,9 @@ def run_trials_avg_fitness_per_iteration(
     fitness value until they reach the length of the longest history. This ensures consistent averaging
     across all iterations.
     """
+    # Please note that the avg_fitness_per_iteration is only used for plotting the results
+    # Since we will no longer plot the results for SA and HC we will just pad the fitness histories to not get an error
+    # But variable won't be used
     if optimization_algo in ["SA", "HC"]:
         # Pad shorter histories to match the longest one
         max_len = max(len(hist) for hist in all_fitness_histories)
@@ -161,25 +195,43 @@ def run_trials_avg_fitness_per_iteration(
             if len(hist) < max_len:
                 hist.extend([hist[-1]] * (max_len - len(hist)))
 
-    print(f"Debug 1 - run_trials_function (remove later):{all_fitness_histories} ")
-    avg_fitness_per_iteration = [round(sum(col) / len(col), 2) for col in zip(*all_fitness_histories)]
 
-    # Plot the results
-    plt.figure(figsize=(10, 5))
-    plt.plot(avg_fitness_per_iteration, label='Average Fitness per Iteration/Generation')
-    plt.xlabel('Iteration/Generation')
-    plt.ylabel('Average Fitness')
-    plt.title('Average Fitness per Iteration/Generation)')
-    plt.legend()
-
-    # Remove grid and set integer ticks on x-axis
-    plt.grid(False)
-    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-
-    plt.tight_layout()
-    plt.show()
+    median_fitness_per_iteration = [round(np.median(col), 2) for col in zip(*all_fitness_histories)]
 
 
-    return best_solutions, all_fitness_histories, avg_fitness_per_iteration
+    if optimization_algo == "GA":
+        # Plot the results
+        plt.figure(figsize=(10, 5))
+        plt.plot(median_fitness_per_iteration, label='Average Fitness per Generation')
+        plt.xlabel('Generation')
+        plt.ylabel('Average Fitness')
+        plt.title('Average Fitness per Iteration/Generation)')
+        plt.legend()
+
+        # Remove grid and set integer ticks on x-axis
+        plt.grid(False)
+        plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+
+        plt.tight_layout()
+        plt.show()
+
+
+    # Save the results to a CSV file
+    # Save best solutions to a CSV file
+    best_fitness_values = [sol.fitness() for sol in best_solutions]
+    pd.DataFrame(best_fitness_values, columns=["Fitness"]).to_csv(os.path.join(folder_path, "best_solutions.csv"), index=False)
+
+    # Save all fitness histories to a CSV file
+    all_fitness_histories_df = pd.DataFrame(all_fitness_histories)
+    all_fitness_histories_df.to_csv(os.path.join(folder_path, "all_fitness_histories.csv"), index=False)
+
+    # Save median fitness per iteration to a CSV file
+    pd.DataFrame(median_fitness_per_iteration, columns=["MedianFitness"]).to_csv(os.path.join(folder_path, "avg_fitness_per_iteration.csv"), index=False)
+
+    # Save the trial durations to a CSV file
+    pd.DataFrame(trial_durations, columns=["TrialDurations"]).to_csv(os.path.join(folder_path, "trial_durations.csv"), index=False)
+
+
+    return best_solutions, all_fitness_histories, median_fitness_per_iteration, trial_durations
     # the best_solutions is a list of instances of best solutions and not the fitness of the best solutions
     # the all_fitness_histories is a list of lists of fitnesses

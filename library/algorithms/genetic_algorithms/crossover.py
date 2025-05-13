@@ -64,6 +64,9 @@ def cycle_crossover(parent1_repr, parent2_repr):
 
     return offspring1_repr, offspring2_repr
 
+
+
+
 def order_crossover(parent1_repr, parent2_repr):
     # seats_per_table = parent1_repr.count(1)
     attendee_length = len(parent1_repr)
