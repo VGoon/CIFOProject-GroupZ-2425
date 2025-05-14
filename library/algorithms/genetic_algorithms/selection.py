@@ -2,7 +2,9 @@ import random
 from copy import deepcopy
 from random import randint
 from library.solution import Solution
+import numpy as np
 
+"""
 def fitness_proportionate_selection(population: list[Solution], maximization: bool):
     if maximization:
         fitness_values = []
@@ -28,6 +30,37 @@ def fitness_proportionate_selection(population: list[Solution], maximization: bo
         box_boundary += fitness_values[ind_idx]
         if random_nr <= box_boundary:
             return deepcopy(ind)
+"""
+
+
+def fitness_proportionate_selection(population: list, maximization: bool):
+    fitness_values = []
+
+    for ind in population:
+        # Use internal validator
+        ind._validate_repr(ind.repr)
+
+        fit = ind.fitness()
+
+        # Reject invalid fitness values
+        if fit < 0:
+            raise ValueError(f"fitness_proportionate_selection- Invalid individual: negative fitness ({fit}) detected.")
+
+        if maximization:
+            fitness_values.append(fit) #if fit > 0 else 1e-7)
+        else:
+            fitness_values.append(1 / fit )#if fit > 0 else 1e-7)
+
+    fitness_array = np.array(fitness_values)
+    total_fitness = fitness_array.sum()
+
+    selection_probs = fitness_array / total_fitness
+    selected_index = np.random.choice(len(population), p=selection_probs)
+    return deepcopy(population[selected_index])
+
+
+
+
 
 
 def ranking_selection(population: list[Solution], maximization):
@@ -35,7 +68,14 @@ def ranking_selection(population: list[Solution], maximization):
     total_fitness = 0
     fitness_list = [] # list of tuples (ind, fitness)
     for indiv in population:
+        # Use internal validator
+        indiv._validate_repr(indiv.repr)
+
         fitness = indiv.fitness()
+        # Reject invalid fitness values
+        if fitness < 0:
+            raise ValueError(f"ranking selection - Invalid individual: negative fitness ({fitness}) detected.")
+        
         fitness_list.append((indiv, fitness))
         total_fitness += fitness
 
@@ -79,7 +119,14 @@ def tournament_selection(population: list[Solution], maximization: bool, k: int 
     tourney_indivs = population[start_idx:end_idx]
 
     # Get fitness for selected individuals
-    fitness_list = [(ind, ind.fitness()) for ind in tourney_indivs]
+    #fitness_list = [(ind, ind.fitness()) for ind in tourney_indivs]
+    fitness_list = []
+    for indiv in tourney_indivs:
+        indiv._validate_repr(indiv.repr)  # Raise error if invalid
+        fit = indiv.fitness()
+        if fit < 0:
+            raise ValueError(f"tornamente_selection - Invalid individual: negative fitness ({fit}) detected.")
+        fitness_list.append((indiv, fit))
 
     # Select best (or worst) individual
     if maximization:

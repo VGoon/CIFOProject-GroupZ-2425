@@ -7,7 +7,8 @@ class WeddingGASolution(Wedding_Solution):
         crossover_function,
         tables,
         attendees,
-        values_grid,
+        #values_grid,
+        values_grid = None,
         repr = None
     ):
         # Save as attributes for access in methods
@@ -20,6 +21,15 @@ class WeddingGASolution(Wedding_Solution):
             attendees=attendees,
             values_grid=values_grid,
         )
+
+    def fitness(self):
+        # Check if the fitness has already been computed and cached
+        if hasattr(self, '_fitness'):
+            return self._fitness
+        
+        # If not, compute the fitness using the superclass's method and store it
+        self._fitness = super().fitness()
+        return self._fitness
 
     """
     def mutation(self, mut_prob):

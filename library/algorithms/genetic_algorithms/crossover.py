@@ -1,6 +1,7 @@
 import random
 from copy import deepcopy
 from random import randint
+from library.wedding_solution import Wedding_Solution
 # from library.solution import Solution
 
 
@@ -61,6 +62,13 @@ def cycle_crossover(parent1_repr, parent2_repr):
     if isinstance(parent1_repr, str) and isinstance(parent2_repr, str):
         offspring1_repr = "".join(offspring1_repr)
         offspring2_repr = "".join(offspring2_repr)
+
+    # Validation step
+    try:
+        _ = Wedding_Solution(repr=offspring1_repr)  # will raise if invalid
+        _ = Wedding_Solution(repr=offspring2_repr)
+    except Exception as e:
+        raise ValueError(f"Invalid representation produced by cycle_crossover: {e}")
 
     return offspring1_repr, offspring2_repr
 
@@ -124,5 +132,12 @@ def order_crossover(parent1_repr, parent2_repr):
 
         offspring_idx += 1
         substring_idx += 1
+    
+    # Validation step
+    try:
+        _ = Wedding_Solution(repr=offspring1_repr)  # will raise if invalid
+        _ = Wedding_Solution(repr=offspring2_repr)
+    except Exception as e:
+        raise ValueError(f"Invalid representation produced by cycle_crossover: {e}")
 
     return offspring1_repr, offspring2_repr
