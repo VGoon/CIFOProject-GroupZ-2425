@@ -188,11 +188,14 @@ def tableswap_mutation(representation, mut_prob, fitness_grid=None, verbose=Fals
         peopleToSwap.append(random.choice(table_seats))
 
     # shuffle the chosen people
-    print(peopleToSwap)
+    if verbose:
+        print(peopleToSwap)
     swap_copy = deepcopy(peopleToSwap)
     while swap_copy == peopleToSwap:
         random.shuffle(peopleToSwap)
-    print(peopleToSwap)
+
+    if verbose:
+        print(peopleToSwap)
 
     for idx in range(0, len(peopleToSwap)):
         table_num = idx + 1
