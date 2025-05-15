@@ -1,5 +1,7 @@
 from random import randint, choice
 from copy import deepcopy
+from library.wedding_solution import Wedding_Solution
+
 
 def random_swap_neighborhood(repr, get_valued_people=None, num_of_neighbors=64, attendees=64):
     neighbors = []
@@ -24,6 +26,12 @@ def random_swap_neighborhood(repr, get_valued_people=None, num_of_neighbors=64, 
         new_repr[randomPersonB - 1] = tableA
 
         debug_print = "Swapped person #" + str(personA) + " at table " + str(tableA) + " with person #" + str(randomPersonB) + " at table " + str(randomTableB)
+
+        # Validation step
+        try:
+            _ = Wedding_Solution(repr=new_repr, values_grid=None)
+        except Exception as e:
+            raise ValueError(f"random_swap_neighborhood - Invalid representation in mutation: {e}")
 
         # add to the list of neighbors
         neighbors.append((new_repr,debug_print))
@@ -82,13 +90,19 @@ def greedy_swap_neighborhood(repr, get_valued_people, attendees=64):
         new_repr[randomPersonB - 1] = randomTableA
 
         debug_msg = f"Swapped person #{randomPersonA} at table {randomTableA} with person #{randomPersonB} at table {randomTableB}"
+        # Validation step
+        try:
+            _ = Wedding_Solution(repr=new_repr, values_grid=None)
+        except Exception as e:
+            raise ValueError(f"random_swap_neighborhood - Invalid representation in mutation: {e}")
+        
         neighbors.append((new_repr, debug_msg))
 
     return neighbors
 
 
 
-def actual_greedy_swap_neighborhood(repr, get_valued_people, attendees=64):
+def greedy_swap_neighborhood(repr, get_valued_people, attendees=64):
     neighbors = []
 
     # Select random person A and their table

@@ -14,7 +14,7 @@ from library.algorithms.hc_sa.wedding_sa_hc_solutions import Wedding_HillClimbin
 from library.wedding_ga_solution import WeddingGASolution
 from library.wedding_solution import Wedding_Solution
 
-from library.algorithms.hc_sa.neighborhoods import random_swap_neighborhood, actual_greedy_swap_neighborhood
+from library.algorithms.hc_sa.neighborhoods import random_swap_neighborhood, greedy_swap_neighborhood
 import pandas as pd
 fitness_grid = pd.read_csv("library/wedding_seat_data.csv")
 
@@ -94,8 +94,8 @@ def run_trials_median_fitness_per_iteration(
     # Defining the neighborhood function name
     if neighborhood_function == random_swap_neighborhood:
         neighborhood_function_name = "random_swap_neighborhood"
-    elif neighborhood_function == actual_greedy_swap_neighborhood:
-        neighborhood_function_name = "actual_greedy_swap_neighborhood"
+    elif neighborhood_function == greedy_swap_neighborhood:
+        neighborhood_function_name = "greedy_swap_neighborhood"
 
     # Generate a new folder to store the results obtained from the trials
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

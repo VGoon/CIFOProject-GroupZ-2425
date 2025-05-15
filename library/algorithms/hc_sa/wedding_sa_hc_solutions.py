@@ -19,6 +19,15 @@ class Wedding_HillClimbingSolution(Wedding_Solution):
         )
         self.neighborhood_function = neighborhood_function
 
+    def fitness(self):
+        # Check if the fitness has already been computed and cached
+        if hasattr(self, '_fitness'):
+            return self._fitness
+        
+        # If not, compute the fitness using the superclass's method and store it
+        self._fitness = super().fitness()
+        return self._fitness
+
     
     def get_neighbors(self):
 
@@ -63,6 +72,16 @@ class Wedding_SimulatedAnnealingSolution(Wedding_Solution):
         )
 
         self.neighborhood_function = neighborhood_function
+
+
+    def fitness(self):
+        # Check if the fitness has already been computed and cached
+        if hasattr(self, '_fitness'):
+            return self._fitness
+        
+        # If not, compute the fitness using the superclass's method and store it
+        self._fitness = super().fitness()
+        return self._fitness
 
     def pretty_print(self):
         return self.pretty_print_msg + "\nFitness: " + str(self.fitness())
