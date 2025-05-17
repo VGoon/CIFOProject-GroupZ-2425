@@ -10,7 +10,7 @@ import numpy as np
 from library.algorithms.hc_sa.hill_climbing import hill_climbing
 from library.algorithms.hc_sa.simulated_annealing import simulated_annealing
 from library.algorithms.genetic_algorithms.genetic_algorithm import genetic_algorithm
-from library.algorithms.hc_sa.wedding_sa_hc_solutions import Wedding_HillClimbingSolution, Wedding_SimulatedAnnealingSolution
+from library.wedding_sa_hc_solutions import Wedding_HillClimbingSolution, Wedding_SimulatedAnnealingSolution
 from library.wedding_ga_solution import WeddingGASolution
 from library.wedding_solution import Wedding_Solution
 
