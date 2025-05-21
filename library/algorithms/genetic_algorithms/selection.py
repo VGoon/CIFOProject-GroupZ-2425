@@ -32,7 +32,6 @@ def fitness_proportionate_selection(population: list[Solution], maximization: bo
             return deepcopy(ind)
 """
 
-
 def fitness_proportionate_selection(population: list, maximization: bool):
     fitness_values = []
 
@@ -60,9 +59,6 @@ def fitness_proportionate_selection(population: list, maximization: bool):
 
 
 
-
-
-
 def ranking_selection(population: list[Solution], maximization):
     # evalutate the fitness and get the total fitness
     total_fitness = 0
@@ -79,11 +75,11 @@ def ranking_selection(population: list[Solution], maximization):
         fitness_list.append((indiv, fitness))
         total_fitness += fitness
 
-    # sort by fitness (if max, sort in desc, otherwise, asc)
+    # sort by fitness (if max, sort in asc, otherwise, desc)
     if maximization:
-        sorted(fitness_list, key=lambda x: x[1], reverse=True)
-    else:   
         sorted(fitness_list, key=lambda x: x[1])
+    else:   
+        sorted(fitness_list, key=lambda x: x[1], reverse=True)
             
     # ranks will the the index in the list so index 0 will have rank 1
     # converting ranks to probabilities - the index of the rank list will match the index of the fitness_list
@@ -104,7 +100,47 @@ def ranking_selection(population: list[Solution], maximization):
     return deepcopy(selection[0][0])
 
 
+"""
+def ranking_selection(population: list[Solution], maximization):
+    # evalutate the fitness and get the total fitness
+    total_fitness = 0
+    fitness_list = [] # list of tuples (ind, fitness)
+    for indiv in population:
+        # Use internal validator
+        indiv._validate_repr(indiv.repr)
 
+        fitness = indiv.fitness()
+        # Reject invalid fitness values
+        if fitness < 0:
+            raise ValueError(f"ranking selection - Invalid individual: negative fitness ({fitness}) detected.")
+        
+        fitness_list.append((indiv, fitness))
+        total_fitness += fitness
+
+    # sort by fitness
+    if maximization:
+        fitness_list = sorted(fitness_list, key=lambda x: x[1], reverse=True)
+    else:
+        fitness_list = sorted(fitness_list, key=lambda x: x[1])
+
+    # compute rank-based probabilities
+    rank_prob_list = []
+    rank_summation = sum(range(1, len(fitness_list)+1))
+    for index, _ in enumerate(fitness_list):
+        rank = len(fitness_list) - index  # Best gets highest rank
+        rank_prob = rank / rank_summation
+        rank_prob_list.append(rank_prob)
+
+    # select indiv
+    selection = random.choices(fitness_list, weights=rank_prob_list)
+    
+    # print("Selected individual " + str(selection))
+    selection[0][0].pretty_print()
+
+    #return selection
+    return deepcopy(selection[0][0])
+
+"""
 
 def tournament_selection(population: list[Solution], maximization: bool, k: int = 3):
     # Ensure k is within bounds
@@ -141,7 +177,6 @@ def tournament_selection(population: list[Solution], maximization: bool, k: int 
     return selection[0]
 
 
-
 """
 def tournament_selection(population: list[Solution], maximization):
     # randomly select the number of indivs to compare
@@ -167,3 +202,4 @@ def tournament_selection(population: list[Solution], maximization):
     return selection
 
 """
+
