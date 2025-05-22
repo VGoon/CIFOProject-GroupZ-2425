@@ -170,9 +170,8 @@ def tournament_selection(population: list[Solution], maximization: bool, k: int 
     else:
         selection = min(fitness_list, key=lambda x: x[1])
 
-    # Uncomment for debugging
-    # print(f"Tournament range: {start_idx}-{end_idx}")
-    # selection[0].pretty_print()
+    print(f"Tournament range: {start_idx}-{end_idx}")
+    selection[0].pretty_print()
 
     return selection[0]
 
