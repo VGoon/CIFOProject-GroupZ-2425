@@ -2,16 +2,23 @@ import random
 from copy import deepcopy
 from random import randint
 # from library.solution import Solution
+from library.wedding_solution import Wedding_Solution
+import pandas as pd
+fitness_grid = pd.read_csv("library/wedding_seat_data.csv")
 
 # make it genuinly greedy by starting to make personB the max of the ppl with relationships (sort descending)
-def greedy_swap_mutation(representation, mut_prob, fitness_grid):
+def greedy_swap_mutation(representation, mut_prob, fitness_grid, verbose=False):
     new_repr = deepcopy(representation)
     attendees_num = len(representation)
 
     # random chance to do the mutation
     if random.random() > mut_prob:
-        # print("Randomly chosen to not implement.")
+        if verbose:
+            print("Randomly chosen to not implement greedy_swap_mutation.")
         return new_repr
+    else:
+        if verbose:
+            print("Randomly chosen to implement greedy_swap_mutation.")
 
     # selects random different tables to swap from, 
     randomPersonA = randint(1, attendees_num)
@@ -53,17 +60,30 @@ def greedy_swap_mutation(representation, mut_prob, fitness_grid):
     new_repr[randomPersonB-1] = randomTableA
 
     # print("Swapped personC #" + str(randomPersonC) + " at table " + str(randomTableA) + " with personB #" + str(personB) + " at table " + str(randomTableB) + " for personA #" + str(randomPersonA))
+    # Validation step
+    try:
+        _ = Wedding_Solution(repr=new_repr, values_grid=fitness_grid)
+    except Exception as e:
+        raise ValueError(f"greedy_swap_mutation - Invalid representation in mutation: {e}")
 
     return new_repr
 
-def scramble_mutation(representation, mut_prob):
+
+
+
+
+def scramble_mutation(representation, mut_prob, fitness_grid=None, verbose=False):
     new_repr = deepcopy(representation)
     attendees_num = len(representation)
 
     # random chance to do the mutation
     if random.random() > mut_prob:
-        # print("Randomly chosen to not implement.")
+        if verbose:
+            print("Randomly chosen to not implement scramble_mutation.")
         return new_repr
+    else:
+        if verbose:
+            print("Randomly chosen to implement scramble_mutation.")
 
     # limit the number of people that can be shuffled to at max 10
     if attendees_num < 10:
@@ -85,16 +105,30 @@ def scramble_mutation(representation, mut_prob):
     random.shuffle(peopleToShuffle)
     new_repr[startPerson:stopPerson] = peopleToShuffle
 
+    # Validation step
+    try:
+        _ = Wedding_Solution(repr=new_repr, values_grid=fitness_grid)
+    except Exception as e:
+        raise ValueError(f"scramble_mutation - Invalid representation in mutation: {e}")
+
     return new_repr
 
-def inversion_mutation(representation, mut_prob):
+
+
+
+
+def inversion_mutation(representation, mut_prob, fitness_grid=None, verbose=False):
     new_repr = deepcopy(representation)
     attendees_num = len(representation)
     
     # random chance to do the mutation
     if random.random() >= mut_prob:
-        # print("Randomly chosen to not implement.")
+        if verbose:
+            print("Randomly chosen to not implement inversion_mutation.")
         return new_repr
+    else:
+        if verbose:
+            print("Randomly chosen to implement inversion_mutation.")
     
     # limit the number of people that can be shuffled to at max 10
     if attendees_num < 10:
@@ -118,18 +152,34 @@ def inversion_mutation(representation, mut_prob):
     # print(peopleToInvert)
     # print("---------")
     new_repr[startPerson:stopPerson] = peopleToInvert
+
+    # Validation step
+    try:
+        _ = Wedding_Solution(repr=new_repr, values_grid=fitness_grid)
+    except Exception as e:
+        raise ValueError(f"inversion_mutation - Invalid representation in mutation: {e}")
     
     return new_repr
 
-def tableswap_mutation(representation, mut_prob):
+
+
+
+
+
+
+def tableswap_mutation(representation, mut_prob, fitness_grid=None, verbose=False):
     new_repr = deepcopy(representation)
 
     table_count = max(set(representation))
 
     # random chance to do the mutation
     if random.random() >= mut_prob:
-        # print("Randomly chosen to not implement.")
+        if verbose:
+            print("Randomly chosen to not implement tableswap_mutation.")
         return new_repr
+    else:
+        if verbose:
+            print("Randomly chosen to implement tableswap_mutation.")
     
     # get one individual from each table
     peopleToSwap = []
@@ -138,14 +188,25 @@ def tableswap_mutation(representation, mut_prob):
         peopleToSwap.append(random.choice(table_seats))
 
     # shuffle the chosen people
-    # print(peopleToSwap)
+    if verbose:
+        print(peopleToSwap)
     swap_copy = deepcopy(peopleToSwap)
     while swap_copy == peopleToSwap:
         random.shuffle(peopleToSwap)
-    # print(peopleToSwap)
+
+    if verbose:
+        print(peopleToSwap)
 
     for idx in range(0, len(peopleToSwap)):
         table_num = idx + 1
         new_repr[peopleToSwap[idx]-1] = table_num
+
+
+    # Validation step
+    try:
+        _ = Wedding_Solution(repr=new_repr, values_grid=fitness_grid)
+    except Exception as e:
+        raise ValueError(f"tableswap_mutation - Invalid representation in mutation: {e}")
+    
 
     return new_repr
